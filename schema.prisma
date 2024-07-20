@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Accounts {
+  id          Int           @id @default(autoincrement())
+  email       String        @unique
+  username    String        @unique
+  password    String
+  isAdmin     Boolean?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  CartProduct CartProduct[]
+}
+
+model Products {
+  id           Int           @id @default(autoincrement())
+  name         String
+  slug         String        @unique
+  price        String
+  description  String?       @db.Text
+  image        String
+  isFeatured   String?
+  stock        String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  Categories   Categories?   @relation(fields: [categorySlug], references: [slug], onDelete: SetNull, onUpdate: Cascade)
+  categorySlug String?
+  CartProduct  CartProduct[]
+}
+
+model Categories {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  slug      String     @unique
+  image     String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Products  Products[]
+}
+
+model CartProduct {
+  id          Int       @id @default(autoincrement())
+  Account     Accounts? @relation(fields: [accountId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  accountId   Int?
+  Product     Products? @relation(fields: [productSlug], references: [slug], onDelete: SetNull, onUpdate: Cascade)
+  productSlug String?
+  quantity    Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
